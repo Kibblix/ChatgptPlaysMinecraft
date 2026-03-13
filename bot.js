@@ -38,6 +38,21 @@ bot.on('chat', async (username, message) => {
     bot.chat("Stopping.")
     bot.pathfinder.setGoal(null)
   }
+
+  if (message === 'build') {
+    buildbuilding([
+      [["grass_block.block"],["grass_block.block"]],
+      [["air.block"],["grass_block.block"]],
+      [["air.block"],["grass_block.block"]],
+      [["air.block"],["grass_block.block"]]],
+      [
+      [["grass_block.block"],["grass_block.block"]],
+      [["grass_block.block"],["air.block"]],
+      [["grass_block.block"],["air.block"]],
+      [["grass_block.block"],["air.block"]]])
+  }
+  
+})
 })
 async function followplayer(username) {
   const player = bot.players[username]
@@ -71,6 +86,17 @@ async function gotoplayer(username) {
   } catch (err) {
     console.log(err.message) // Handle cases where pathfinding fails
     bot.chat("I can't reach you.")
+  }
+
+}
+
+async function buildbuilding(building) {
+let botPosistion = bot.entity.position
+for (z==0; z<length(building); z++) {
+  for (y==0; y<length(building[z]); y++) {
+      for (x==0; x<length(building[z][y]); x++) {
+          bot.blockAt(building[z][y][x], (botPosistion[0]+x,botPosistion[1]+y,botPosistion[2]+z))
+      }
   }
 }
 
