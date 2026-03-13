@@ -8,10 +8,12 @@ const { GoalNear } = require('mineflayer-pathfinder').goals;
 const { GoalFollow } = require('mineflayer-pathfinder').goals;
 const { Movements } = require('mineflayer-pathfinder')
 
+const Vec3 = require('vec3')
+
 const bot = mineflayer.createBot({
   host: '127.0.0.1', // server
   port: 25565,              // optional
-  username: "heroin_addict_1"      // or email for premium account
+  username: "person"      // or email for premium account
 })
 bot.once('spawn', () => {
   const mcData = require('minecraft-data')(bot.version)
@@ -35,20 +37,7 @@ bot.on('chat', async (username, message) => {
     bot.pathfinder.setGoal(null)
   }
 
-  if (message === 'build') {
-    buildbuilding([
-      [["grass_block.block"],["grass_block.block"]],
-      [["air.block"],["grass_block.block"]],
-      [["air.block"],["grass_block.block"]],
-      [["air.block"],["grass_block.block"]]],
-      [
-      [["grass_block.block"],["grass_block.block"]],
-      [["grass_block.block"],["air.block"]],
-      [["grass_block.block"],["air.block"]],
-      [["grass_block.block"],["air.block"]]])
-  }
   
-})
 })
 async function followplayer(username) {
   const player = bot.players[username]
@@ -71,7 +60,7 @@ async function gotoplayer(username) {
   }
 
   const p = targetPlayer.entity.position
-  // Define the goal: go to the player's X, Y, Z coordinates
+  // goal: go to the player's X, Y, Z coordinates
   // GoalNear makes the bot get within a 2-block radius (adjust as needed)
   const goal = new GoalNear(p.x, p.y, p.z, 2)
 
@@ -85,14 +74,3 @@ async function gotoplayer(username) {
   }
 
 }
-
-async function buildbuilding(building) {
-let botPosistion = bot.entity.position
-for (z==0; z<length(building); z++) {
-  for (y==0; y<length(building[z]); y++) {
-      for (x==0; x<length(building[z][y]); x++) {
-          bot.blockAt(building[z][y][x], (botPosistion[0]+x,botPosistion[1]+y,botPosistion[2]+z))
-      }
-  }
-}
-
