@@ -27,7 +27,6 @@ bot.loadPlugin(pathfinder)
 
 bot.on('chat', async (username, message) => {
   if (username === bot.username) return // Ignore its own messages
-
   if (message === 'come') {
     gotoplayer(username)
   }
@@ -75,7 +74,3 @@ async function gotoplayer(username) {
   }
 }
 
-async function buildhouse() {
-  let referenceBlock = bot.blockAtCursor();
-  bot.blockAt(referenceBlock, vec3(0,0,0))
-}
