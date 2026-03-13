@@ -1,10 +1,11 @@
+// imports mineflayer
 const mineflayer = require('mineflayer')
 const pathfinder = require('mineflayer-pathfinder').pathfinder;
 const collectBlock = require('mineflayer-collectblock').collectBlock;
+// sets goals and movements
 const { GoalBlock } = require('mineflayer-pathfinder').goals;
 const { GoalNear } = require('mineflayer-pathfinder').goals;
 const { GoalFollow } = require('mineflayer-pathfinder').goals;
-
 const { Movements } = require('mineflayer-pathfinder')
 
 
