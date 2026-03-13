@@ -37,6 +37,19 @@ bot.on('chat', async (username, message) => {
     bot.pathfinder.setGoal(null)
   }
 
+    
+  if (message === 'build') {
+    buildhouse([
+        [["grass_block.block"],["grass_block.block"]],
+        [["air.block"],["grass_block.block"]],
+        [["air.block"],["grass_block.block"]],
+        [["air.block"],["grass_block.block"]]],
+        [
+        [["grass_block.block"],["grass_block.block"]],
+        [["grass_block.block"],["air.block"]],
+        [["grass_block.block"],["air.block"]],
+        [["grass_block.block"],["air.block"]]])
+  }
   
 })
 async function followplayer(username) {
@@ -73,4 +86,16 @@ async function gotoplayer(username) {
     bot.chat("I can't reach you.")
   }
 
+}
+
+async function buildbuilding(building) {
+  let botPosistion = (math.round(bot.entity.position.x),math.round(bot.entity.position.y),math.round(bot.entity.position.z))
+  for (z==0; z<length(building); z++) {
+    for (y==0; y<length(building[z]); y++) {
+        for (x==0; x<length(building[z][y]); x++) {
+            let vec3=(botPosistion[0]+x,botPosistion[1]+y,botPosistion[2]+z)
+            bot.blockAt(building[z][y][x], vec3) // here does bot build. cuz idk
+        }
+    }
+  }
 }
