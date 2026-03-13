@@ -8,11 +8,10 @@ const { GoalNear } = require('mineflayer-pathfinder').goals;
 const { GoalFollow } = require('mineflayer-pathfinder').goals;
 const { Movements } = require('mineflayer-pathfinder')
 
-
 const bot = mineflayer.createBot({
   host: '127.0.0.1', // server
   port: 25565,              // optional
-  username: 'lockedinninjer'         // or email for premium account
+  username: "heroin_addict_1"      // or email for premium account
 })
 bot.once('spawn', () => {
   const mcData = require('minecraft-data')(bot.version)
@@ -20,10 +19,7 @@ bot.once('spawn', () => {
   bot.pathfinder.setMovements(movements)
 })
 
-
 bot.loadPlugin(pathfinder)
-
-
 
 bot.on('chat', async (username, message) => {
   if (username === bot.username) return // Ignore its own messages
