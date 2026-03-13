@@ -73,3 +73,8 @@ async function gotoplayer(username) {
     bot.chat("I can't reach you.")
   }
 }
+
+async function buildhouse() {
+  let referenceBlock = bot.blockAtCursor();
+  bot.blockAt(referenceBlock, vec3(0,0,0))
+}
