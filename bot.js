@@ -1,8 +1,7 @@
-// imports mineflayer
+// importererererere mineflayer
 const mineflayer = require('mineflayer')
 const pathfinder = require('mineflayer-pathfinder').pathfinder;
-const collectBlock = require('mineflayer-collectblock').collectBlock;
-// sets goals and movements
+// setter goals og skit
 const { GoalBlock } = require('mineflayer-pathfinder').goals;
 const { GoalNear } = require('mineflayer-pathfinder').goals;
 const { GoalFollow } = require('mineflayer-pathfinder').goals;
@@ -10,9 +9,8 @@ const { Movements } = require('mineflayer-pathfinder')
 const collectBlockPlugin = require('mineflayer-collectblock').plugin
 const Vec3 = require('vec3')
 const OpenAI = require('openai')
-const openai = new OpenAI({
-  apiKey: "Casper_jeg_sendte_deg_nøkkelen_på_teams"
-})
+const openai = new OpenAI({ apiKey: "API KEY" })
+
 
 let mining = false
 let lastAIAction = 0
@@ -21,7 +19,7 @@ const AI_COOLDOWN = 2000
 const bot = mineflayer.createBot({
   host: '127.0.0.1', // server
   port: 25565,              // optional
-  username: "Heroin_addict_1"      // email for ekte account
+  username: "digga_1"      // email for ekte account
 })
 bot.once('spawn', () => {
   const mcData = require('minecraft-data')(bot.version)
@@ -30,12 +28,11 @@ bot.once('spawn', () => {
 })
 
 bot.loadPlugin(pathfinder)
-bot.loadPlugin(collectBlockPlugin)
 
 async function GPT(message, username) {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4.1-mini",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -58,7 +55,7 @@ Available actions:
 - "find" (args: [block])
 - "mine" (args: [block])
 - "farm" (args: [block])
-
+- "attackEntity" (args: [target])
 Keep responses short and valid JSON only. If you are using commands that include blocks make sure to use the minecraft blocks so grass block is grass_block etc. THE ONLY EXCEPTION WHERE YOU WOULD CHAT BACK IS IF THE PLAYER IS CLEARLY TRYING TO HAVE A CHAT.
 `
         },
@@ -83,6 +80,7 @@ Keep responses short and valid JSON only. If you are using commands that include
     }
     lastAIAction = Date.now()
     executeAICommand(data, username)
+    console.log(data, username)
 
   } catch (err) {
     console.log(err)
@@ -122,9 +120,14 @@ function executeAICommand(data, username) {
     case "farm":
       farm(args[0])
       break
-
+    case "give":
+      giveItems(args[0], username)
+      break
+    case "attackEntity":
+      attackEntity(args[0], username)
+      break
     default:
-      bot.chat("GPT said some fuckass command that is not valid")
+      bot.chat("GPT said some command that is not valid")
   }
 }
 function checkinput(username, message) {
@@ -173,7 +176,7 @@ async function followplayer(username) {
     return
   }
 
-  bot.chat("Following you brotha.")
+  bot.chat("Following you bro")
   const goal = new GoalFollow(player.entity, 2)
   bot.pathfinder.setGoal(goal, true)
 }
@@ -181,7 +184,7 @@ async function gotoplayer(username) {
   const targetPlayer = bot.players[username]
 
   if (!targetPlayer || !targetPlayer.entity) {
-    bot.chat("I cant see you buddy, " + username)
+    bot.chat("I cant see you " + username)
     return
   }
 
@@ -193,8 +196,8 @@ async function gotoplayer(username) {
     await bot.pathfinder.goto(goal)
      bot.chat('I have arrived brotato')
   } catch (err) {
-    console.log(err.message) // Handle cases where pathfinding fails
-    bot.chat("I cannot reach you master")
+    console.log(err.message) // Pathfinding fails = error message
+    bot.chat("I cannot reach you")
   }
 
 }
@@ -208,6 +211,7 @@ async function findBlockCommand(blockName) {
   }
 
   const target = bot.findBlock({
+    useExtraInfo: true,
     matching: block.id,
     maxDistance: 64
   })
@@ -217,7 +221,7 @@ async function findBlockCommand(blockName) {
     return
   }
 
-  bot.chat(`Found ${blockName}, walking away to it`)
+  bot.chat(`Found ${blockName}, walking to it`)
 
   const goal = new GoalNear(target.position.x, target.position.y, target.position.z, 1)
   await bot.pathfinder.goto(goal)
@@ -237,7 +241,7 @@ async function collectBlockCommand(blockName) {
   })
 
   if (!target) {
-    bot.chat("Couldnt find block")
+    bot.chat("Couldnt find the block")
     return
   }
 
@@ -269,19 +273,19 @@ async function farm(blockName) {
     })
 
     if (!target) {
-      bot.chat("im outta blocks")
+      bot.chat("im out of blocks")
       break
     }
 
     try {
-      // equip the best tool
-      const tool = bot.pathfinder.bestHarvestTool(target)
+      // equipper beste verktøy igjen
+      const tool = bot.collectBlock.bestHarvestTool(target)
       if (tool) await bot.equip(tool, 'hand')
 
       await bot.collectBlock.collect(target)
 
-      // small delay so it wont go full crackhead mode
-      await bot.waitForTicks(10)
+      // liten delay så den ikke går 429 modus
+      await bot.waitForTicks(3)
 
     } catch (err) {
       console.log(err)
@@ -293,5 +297,94 @@ async function farm(blockName) {
   mining = false
   bot.chat("Stopped farming")
 }
+bot.on('entityHurt', (entity) => {
+  if (entity !== bot.entity) return
 
+  const attacker = bot.nearestEntity(e =>
+    e.type === 'player' &&
+    e !== bot.entity &&
+    e.position.distanceTo(bot.entity.position) < 6
+  )
+
+  if (attacker) {
+    bot.chat("Ayo chill?? throwing hands now fr bro you messed with the wrong dude") // grox reference frfr
+    attackEntity(attacker)
+  }
+})
+let currentAttackLoop = null
+
+async function attackEntity(targetName, username) {
+  let target
+
+  if (targetName === "player") {
+    target = bot.players[username]?.entity
+  } else {
+    target = bot.players[targetName]?.entity
+  }
+
+  if (!target) {
+    bot.chat("I cant see bro to attack")
+    return
+  }
+
+  // stop å beef med den andre duden
+  if (currentAttackLoop) {
+    clearInterval(currentAttackLoop)
+    currentAttackLoop = null
+  }
+
+  await equipBestWeapon()
+
+  bot.chat("Throwing hands bro") // også grox reference
+
+  // følger etter målet
+  bot.pathfinder.setGoal(new GoalFollow(target, 1), true)
+
+  // angripppp
+  currentAttackLoop = setInterval(async () => {
+    if (!target || !target.isValid) {
+      clearInterval(currentAttackLoop)
+      currentAttackLoop = null
+      bot.chat("Target lost :c")
+      return
+    }
+
+    const distance = bot.entity.position.distanceTo(target.position)
+
+    // se på fiende
+    await bot.lookAt(target.position.offset(0, target.height, 0), true)
+
+    // fortsett og oppdater følg kommando
+    bot.pathfinder.setGoal(new GoalFollow(target, 1), true)
+
+    // angrip hvis innenfor angripsdistanse
+    if (distance < 3) {
+      try {
+        bot.attack(target)
+      } catch (err) {
+        console.log("Atttack failed:", err.message)
+      }
+    }
+
+  }, 600) // 600ms = sånn ca delay for de fleste våpen
+}
+async function equipBestWeapon() {
+  const weapons = bot.inventory.items().filter(item =>
+    item.name.includes("sword") || item.name.includes("axe")
+  )
+
+  if (weapons.length === 0) return
+
+  // sverd > økser fr
+  weapons.sort((a, b) => {
+    const swordPriority = (item) => item.name.includes("sword") ? 2 : 1
+    return swordPriority(b) - swordPriority(a)
+  })
+
+  try {
+    await bot.equip(weapons[0], 'hand')
+  } catch (err) {
+    console.log("Equip failed:", err.message)
+  }
+}
 bot.on('chat', checkinput)
